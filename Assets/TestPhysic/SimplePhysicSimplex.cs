@@ -184,10 +184,10 @@ public class Simplex
                         triangleNormals.RemoveAt(i);
                         i--;
                     }
-                    //else
-                    //{
-                    //    normal = search1 ? -tNomal : tNomal;
-                    //}
+                    else
+                    {
+                        normal = search1 ? -tNomal : tNomal;
+                    }
                 }
                 else
                 {
@@ -232,7 +232,7 @@ public class Simplex
         float currentNear = Vector3.Dot(nearest, dir);
         insert = near;
         //Debug.Log($"near {near} = {dir}{pos} nearest{currentNear}{nearest}{dir}");
-        var dis = near - currentNear + SimplePhysicSolver._Epsilon;
+        var dis = near - currentNear;
         if(insert < epaInsertCache + SimplePhysicSolver._Epsilon)
         {
             epaCloserCount++;
@@ -244,7 +244,7 @@ public class Simplex
 
         //Debug.Log($"insert change: {insert}  cache {epaInsertCache}");
         epaInsertCache = insert;
-        if (near < SimplePhysicSolver._Epsilon || dis <= 0)
+        if (near < SimplePhysicSolver._Epsilon || dis <= SimplePhysicSolver._Epsilon)
         {
             return true;
         }
@@ -537,7 +537,7 @@ public class Simplex
     {
         inLine = false;
         var dot = Vector3.Dot(a.normalized, b.normalized);
-        if (Math.Abs(dot) == 1)
+        if (-(dot) == 1)
         {
             inLine = true;
         }

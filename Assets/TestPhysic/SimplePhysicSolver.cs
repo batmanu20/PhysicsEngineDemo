@@ -21,6 +21,7 @@ public class SimplePhysicSolver : MonoBehaviour
     public float slopP = 0.5f;
     public float slopR = 50f;
     public float epsilon = 1e-2f;
+    public int maxSteps = 1;
 
     private List<SimplePhysicRigidBody> rigidBodies = new List<SimplePhysicRigidBody>();
     //public List<SimplePhysicConstrain> constrains = new List<SimplePhysicConstrain>();
@@ -104,17 +105,11 @@ public class SimplePhysicSolver : MonoBehaviour
         }
         this.ApplyForce();
         stable = false;
-        int maxCount = 1;
         int count = 0;
-        while(!stable && count < maxCount)
+        while(!stable && count < maxSteps)
         {
             stable = true;
             this.DetectCollision();
-            if(constrainCount > 0)
-            {
-                int a = 0;
-            }
-            //this.ApplyConstrain();
             solveContactConstrain = true;
             this.ApplyContactNormalConstrain();
             this.SolveConstrain();

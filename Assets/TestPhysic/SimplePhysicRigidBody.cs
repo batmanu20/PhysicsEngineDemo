@@ -127,6 +127,7 @@ public class SimplePhysicRigidBody : MonoBehaviour
 
     public void AddForce(bool localPoint, Vector3 point, Vector3 force)
     {
+        this.posAndForces.Clear();
         Matrix4x4 localMatrix = Matrix4x4.TRS(Vector3.zero, this.transform.localRotation, this.transform.localScale);
         if (localPoint)
         {
@@ -138,6 +139,7 @@ public class SimplePhysicRigidBody : MonoBehaviour
 
     public void AddForce()
     {
+        this.posAndForces.Clear();
         Matrix4x4 localMatrix = Matrix4x4.TRS(Vector3.zero, this.transform.localRotation, this.transform.localScale);
         if (testForce != null)
         {
@@ -175,6 +177,7 @@ public class SimplePhysicRigidBody : MonoBehaviour
 
     public void DetectCollision()
     {
+        this.collisionConstrains.Clear();
         for (int i = 0; i < farCollisionTarget.Count; ++i)
         {
             if(this.collider && this.solver.GetRigidbody(farCollisionTarget[i]).collider)
@@ -365,9 +368,6 @@ public class SimplePhysicRigidBody : MonoBehaviour
             //this.collider = false;
             //this.applyCollision = false;
         }
-        // Clear forces after apply the result of simulation.
-        this.posAndForces.Clear();
-        this.collisionConstrains.Clear();
     }
 
     public float GetP(int i)
@@ -378,27 +378,6 @@ public class SimplePhysicRigidBody : MonoBehaviour
 
     public void DetectCollision(SimplePhysicRigidBody rigid)
     {
-        //// temp hard code detection
-        //bool inverse = (int)(this.type) > (int)(rigid.type);
-        //int a = (int)(this.type) < (int)(rigid.type) ? (int)(this.type) : (int)(rigid.type);
-        //int b = (int)(this.type) < (int)(rigid.type) ? (int)(rigid.type) : (int)(this.type);
-        //var methood = SimplePhysicRigidBodyMethod.collisionMethods[a, b];
-        //CollisionResult res;
-        //if (inverse)
-        //{
-        //    methood(rigid, this, out res);
-        //    //rigid.AppyCollision(res, this);
-        //    //Debug.Log($"collision {res.collision}  insimplex  {state}");
-        //    //result = res;
-        //}
-        //else
-        //{
-        //    methood(this, rigid, out res);
-        //    //this.AppyCollision(res, rigid);
-        //    //Debug.Log($"collision {res.collision}  insimplex{state}");
-        //    //result = res;
-        //}
-
         // GJK and EPA method
         // Use GJK to detect Collision;
         var dir = this.unsolvedLinearV - rigid.unsolvedLinearV;
