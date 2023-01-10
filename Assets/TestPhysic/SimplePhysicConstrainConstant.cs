@@ -9,6 +9,10 @@ public class SimplePhysicConstrainConstant : SimplePhysicConstrain
         this.paramSetCount = 0;
     }
 
+    public override void Setup(Transform transform)
+    {
+    }
+
     public override void AddConstrain(ref int constrainCount, ref float[,] jacobi, ref float[] bias)
     {
     }

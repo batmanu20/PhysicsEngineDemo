@@ -25,4 +25,9 @@ public class SimplePhysicConstrainPlane : SimplePhysicConstrain
         jacobi[constrainCount, start + 5] = 0;
         constrainCount += 1;
     }
+
+    public override void Setup(Transform transform)
+    {
+        //throw new System.NotImplementedException();
+    }
 }

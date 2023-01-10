@@ -38,6 +38,9 @@ public class SimplePhysicRigidBodyBox : SimplePhysicRigidBody
         this.inertia.m00 = this.mass * (scale.y * scale.y + scale.z * scale.z) / 12.0f;
         this.inertia.m11 = this.mass * (scale.x * scale.x + scale.z * scale.z) / 12.0f;
         this.inertia.m22 = this.mass * (scale.x * scale.x + scale.y * scale.y) / 12.0f;
+        //this.inertia.m00 = this.mass;
+        //this.inertia.m11 = this.mass;
+        //this.inertia.m22 = this.mass;
     }
 
     public override Vector3 SupportFunction(ref Vector3 worldDir)

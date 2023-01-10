@@ -9,7 +9,12 @@ public class SimplePhysicConstrainCollision : SimplePhysicConstrain
     private int idA;
     private int idB;
 
-    public SimplePhysicConstrainCollision(float[] _p, float _b,int _idA, int _idB, bool normal)
+    public override void Setup(Transform transform)
+    {
+        //throw new System.NotImplementedException();
+    }
+
+    public void SetParameter(float[] _p, float _b,int _idA, int _idB, bool normal)
     {
         p = _p;
         b = _b;

@@ -9,10 +9,21 @@ public class SimplePhysicConstrainAxis : SimplePhysicConstrain
     private Vector3 T;
     private Vector3 B;
 
-
     SimplePhysicConstrainAxis()
     {
         this.paramSetCount = 2;
+    }
+
+    public override void Setup(Transform transform)
+    {
+        worldDirection = Vector3.Normalize(worldDirection);
+        this.T = Vector3.up;
+        if (Vector3.Dot(Vector3.up, worldDirection) > 1e-2)
+        {
+            this.T = Vector3.right;
+        }
+        this.B = Vector3.Cross(worldDirection, this.T);
+        this.T = Vector3.Cross(this.B, worldDirection);
     }
 
     private void OnEnable()

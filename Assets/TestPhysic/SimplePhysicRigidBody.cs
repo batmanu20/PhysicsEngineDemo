@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using Mathf = UnityEngine.Mathf;
 
@@ -64,7 +65,7 @@ public class SimplePhysicRigidBody : MonoBehaviour
     public Matrix4x4 unsolvedRotation;
     public List<int> farCollisionTarget = new List<int>();
 
-    public SimplePhysicConstrain[] staticConstrains;
+    public List<SimplePhysicConstrain> staticConstrains = new List<SimplePhysicConstrain>();
     public List<SimplePhysicConstrain> collisionConstrains = new List<SimplePhysicConstrain>();
     private CollisionResult resultCache;
     private Simplex debugSimplex;
@@ -103,14 +104,14 @@ public class SimplePhysicRigidBody : MonoBehaviour
             rigidIndex = solver.RigistRigidbody(this);
         }
 
-        staticConstrains = this.GetComponents<SimplePhysicConstrain>();
-        if(staticConstrains != null)
-        {
-            for(int i = 0; i < staticConstrains.Length; ++i)
-            {
-                staticConstrains[i].rigidbodies.Add(this);
-            }
-        }
+        //staticConstrains = this.GetComponents<SimplePhysicConstrain>();
+        //if(staticConstrains != null)
+        //{
+        //    for(int i = 0; i < staticConstrains.Length; ++i)
+        //    {
+        //        staticConstrains[i].rigidbodies.Add(this);
+        //    }
+        //}
         this.CalculateParams();
         if(this.ground)
         {
@@ -177,6 +178,11 @@ public class SimplePhysicRigidBody : MonoBehaviour
 
     public void DetectCollision()
     {
+        this.collisionGizmosPos.Clear();
+        //foreach(var c in this.collisionConstrains)
+        //{
+        //    GameObject.Destroy(c);
+        //}
         this.collisionConstrains.Clear();
         for (int i = 0; i < farCollisionTarget.Count; ++i)
         {
@@ -185,18 +191,6 @@ public class SimplePhysicRigidBody : MonoBehaviour
                 this.DetectCollision(this.solver.GetRigidbody(farCollisionTarget[i]));
             }
         }
-    }
-
-    public void DumpSolvedBias()
-    {
-        float vc = Vector3.Dot(
-            -this.unsolvedLinearV
-            - Vector3.Cross(this.unsolvedAngularV, resultCache.contactDirA)
-        , resultCache.normalDirection);
-        float b1 = -1 * SimplePhysicSolver._Beta
-            * Mathf.Max(resultCache.insertion - SimplePhysicSolver._SlopP, 0) / Time.fixedDeltaTime;
-        float b2 = SimplePhysicSolver._Cr * Math.Sign(vc) * Mathf.Max(Math.Abs(vc) - SimplePhysicSolver._SlopR, 0);
-        Debug.Log("b1 = " + b1 + " b2 = " + b2 + " vc =" + vc + " -va = " + (-this.linearVelocity) + " dot " + Vector3.Dot(-this.linearVelocity, resultCache.normalDirection));
     }
 
     public virtual void AppyCollision(CollisionResult result, SimplePhysicRigidBody target)
@@ -248,7 +242,10 @@ public class SimplePhysicRigidBody : MonoBehaviour
                 rbXn.z,
             };
 
-            this.collisionConstrains.Add(new SimplePhysicConstrainCollision(p, b, this.rigidIndex, target.rigidIndex, true));
+            var collisionConstrain = new SimplePhysicConstrainCollision();
+            //var collisionConstrain = this.gameObject.AddComponent<SimplePhysicConstrainCollision>();
+            collisionConstrain.SetParameter(p, b, this.rigidIndex, target.rigidIndex, true);
+            this.collisionConstrains.Add(collisionConstrain);
 
             var vecT = Vector3.Normalize(this.unsolvedLinearV - target.unsolvedLinearV);
             if (Vector3.Dot(vecT, Vector3.forward) == 1)
@@ -280,12 +277,17 @@ public class SimplePhysicRigidBody : MonoBehaviour
                 + target.unsolvedLinearV
                 + Vector3.Cross(target.unsolvedAngularV, vecT)
             , vecT);
-            b2 = SimplePhysicSolver._Cf * Math.Sign(vc) * Mathf.Max(Math.Abs(vc) - SimplePhysicSolver._SlopR, 0);
+            b2 = -(1 - SimplePhysicSolver._Cf) * Math.Sign(vc) * Mathf.Max(Math.Abs(vc) - SimplePhysicSolver._SlopR, 0);
             for (int i = 0; i < p.Length; ++i)
             {
                 //p[i] *= (float)Math.Pow(SimplePhysicSolver._Cf, SimplePhysicSolver._CfPower);
             }
-            this.collisionConstrains.Add(new SimplePhysicConstrainCollision(p, 0, this.rigidIndex, target.rigidIndex, false));
+
+            collisionConstrain = new SimplePhysicConstrainCollision();
+            //collisionConstrain = this.gameObject.AddComponent<SimplePhysicConstrainCollision>();
+            collisionConstrain.SetParameter(p, b2, this.rigidIndex, target.rigidIndex, false);
+            this.collisionConstrains.Add(collisionConstrain);
+            //this.collisionConstrains.Add(new SimplePhysicConstrainCollision(p, 0, this.rigidIndex, target.rigidIndex, false));
 
             raXt = Vector3.Cross(result.contactDirA, vecB);
             rbXt = Vector3.Cross(result.contactDirB, vecB);
@@ -310,12 +312,17 @@ public class SimplePhysicRigidBody : MonoBehaviour
                 + target.unsolvedLinearV
                 + Vector3.Cross(target.unsolvedAngularV, vecB)
             , vecB);
-            b2 = SimplePhysicSolver._Cf * Math.Sign(vc) * Mathf.Max(Math.Abs(vc) - SimplePhysicSolver._SlopR, 0);
+            b2 = -(1 - SimplePhysicSolver._Cf) * Math.Sign(vc) * Mathf.Max(Math.Abs(vc) - SimplePhysicSolver._SlopR, 0);
             for (int i = 0; i < p.Length; ++i)
             {
                 //p[i] *= (float)Math.Pow(SimplePhysicSolver._Cf, SimplePhysicSolver._CfPower);
             }
-            this.collisionConstrains.Add(new SimplePhysicConstrainCollision(p, 0, this.rigidIndex, target.rigidIndex, false));
+
+            collisionConstrain = new SimplePhysicConstrainCollision();
+            //collisionConstrain = this.gameObject.AddComponent<SimplePhysicConstrainCollision>();
+            collisionConstrain.SetParameter(p, b2, this.rigidIndex, target.rigidIndex, false);
+            this.collisionConstrains.Add(collisionConstrain);
+            //this.collisionConstrains.Add(new SimplePhysicConstrainCollision(p, 0, this.rigidIndex, target.rigidIndex, false));
             SimplePhysicSolver.stable = result.insertion < 2 * SimplePhysicSolver._SlopP ? true : false;
         }
     }

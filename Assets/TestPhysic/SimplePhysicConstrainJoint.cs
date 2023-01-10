@@ -14,7 +14,7 @@ public class SimplePhysicConstrainJoint : SimplePhysicConstrain
         this.paramSetCount = 2;
     }
 
-    private void OnEnable()
+    public override void Setup(Transform transform)
     {
         if (pinPoint != null)
         {
@@ -24,9 +24,24 @@ public class SimplePhysicConstrainJoint : SimplePhysicConstrain
         }
         else
         {
-            worldPosition = this.transform.position;
+            worldPosition = transform.position;
             //worldDirection = Vector3.Normalize(this.transform.forward);
         }
+    }
+
+    private void OnEnable()
+    {
+        //if (pinPoint != null)
+        //{
+        //    worldPosition = pinPoint.position;
+        //    //worldDirection = this.pinPoint.position - this.transform.position;
+        //    //worldDirection = Vector3.Normalize(worldDirection);
+        //}
+        //else
+        //{
+        //    worldPosition = this.transform.position;
+        //    //worldDirection = Vector3.Normalize(this.transform.forward);
+        //}
     }
 
     public override void AddConstrain(ref int constrainCount, ref float[,] jacobi, ref float[] bias)

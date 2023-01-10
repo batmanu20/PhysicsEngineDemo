@@ -13,15 +13,15 @@ public class SimplePhysicConstrainDistance : SimplePhysicConstrain
         this.paramSetCount = 1;
     }
 
-    private void OnEnable()
+    public override void Setup(Transform transform)
     {
-        if(pinPoint != null)
+        if (pinPoint != null)
         {
             worldPosition = pinPoint.position;
         }
         else
         {
-            worldPosition = this.transform.position;
+            worldPosition = transform.position;
         }
     }
 

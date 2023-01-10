@@ -39,7 +39,7 @@ public class SimplePhysicSolver : MonoBehaviour
     // sumBuffer = res of J * (-M)
     private float[,] JinverMBuffer = new float[0, 0];
     // lambdaMtxBuffer = J * (-M) * (Jt)
-    private float[,] lambdaMtxBuffer = new float[0, 0];
+    private float[] lambdaMtxBuffer = new float[0];
     // lambdaMtxBuffer = (J * (-M) * (Jt)).Inverse()
     private float[,] lambdaMtxInverseBuffer = new float[0, 0];
     // lambdaResBuffer = -1 * J (Q1 / deltTime + (_M)* (Fext))
@@ -63,13 +63,15 @@ public class SimplePhysicSolver : MonoBehaviour
     private float[,] jacobiCoefficients = new float[0, 0];
     private float[,] jacobipowers = new float[0, 0];
     private float[,] jacobibiases = new float[0, 0];
-
     private float[,] jacobi = new float[0, 0];
+    private Dictionary<Vector2Int, float> warmStartingLambda = new Dictionary<Vector2Int, float>();
 
     private Vector3 vb1 = Vector3.one;
     private Vector3 vb2 = Vector3.one;
     private Vector3 vb3 = Vector3.one;
     private Vector4 v4b = Vector4.zero;
+    
+    private bool contactNormal = false;
 
     public int RigistRigidbody(SimplePhysicRigidBody rigidbody)
     {
@@ -104,15 +106,21 @@ public class SimplePhysicSolver : MonoBehaviour
             rigid.AddForce();
         }
         this.ApplyForce();
+
+        // Some global state
         stable = false;
+        lambdaSumN = 0;
+
         int count = 0;
-        while(!stable && count < maxSteps)
+        while (!stable && count < maxSteps)
         {
             stable = true;
             this.DetectCollision();
             solveContactConstrain = true;
+            contactNormal = true;
             this.ApplyContactNormalConstrain();
             this.SolveConstrain();
+            contactNormal = false;
             this.ApplyContactTangentConstrain();
             this.SolveConstrain();
             solveContactConstrain = false;
@@ -120,6 +128,7 @@ public class SimplePhysicSolver : MonoBehaviour
             this.SolveConstrain();
             count++;
         }
+
         this.UpdateRigidBody();
         if(count > 1)
         {
@@ -219,9 +228,9 @@ public class SimplePhysicSolver : MonoBehaviour
         for (int i = 0; i < this.rigidBodies.Count; ++i)
         {
             var constrains = this.rigidBodies[i].staticConstrains;
-            if (constrains != null && constrains.Length > 0)
+            if (constrains != null && constrains.Count > 0)
             {
-                for (int c = 0; c < constrains.Length; ++c)
+                for (int c = 0; c < constrains.Count; ++c)
                 {
                     this.constrainCount += constrains[c].paramSetCount;
                 }
@@ -234,9 +243,9 @@ public class SimplePhysicSolver : MonoBehaviour
         for (int i = 0; i < this.rigidBodies.Count; ++i)
         {
             var constrains = this.rigidBodies[i].staticConstrains;
-            if (constrains != null && constrains.Length > 0)
+            if (constrains != null && constrains.Count > 0)
             {
-                for (int c = 0; c < constrains.Length; ++c)
+                for (int c = 0; c < constrains.Count; ++c)
                 {
                     constrains[c].AddConstrain(ref constrainIndex, ref this.jacobi, ref bias);
                 }
@@ -263,9 +272,10 @@ public class SimplePhysicSolver : MonoBehaviour
                 }
             }
         }
+        //if (this.constrainCount > 0)
+        //    Debug.Log($"normal collision count {this.constrainCount}");
 
         contactCollisionCount = this.constrainCount;
-        lambdaSumN = 0;
         this.InitiateMtxBuffer();
 
         int constrainIndex = 0;
@@ -320,55 +330,8 @@ public class SimplePhysicSolver : MonoBehaviour
                 }
             }
         }
-    }
-    private void ApplyConstrain()
-    {
-        //this.constrains.Clear();
-        this.constrainCount = 0;
-        for (int i = 0; i < this.rigidBodies.Count; ++i)
-        {
-            var constrains = this.rigidBodies[i].staticConstrains;
-            if(constrains != null && constrains.Length > 0)
-            {
-                for (int c = 0; c < constrains.Length; ++c)
-                {
-                    this.constrainCount += constrains[c].paramSetCount;
-                }
-            }
-        }
-
-        for (int i = 0; i < this.rigidBodies.Count; ++i)
-        {
-            var constrains = this.rigidBodies[i].collisionConstrains;
-            if (constrains != null && constrains.Count > 0)
-            {
-                this.constrainCount += this.rigidBodies[i].collisionConstrains.Count;
-            }
-        }
-
-        this.InitiateMtxBuffer();
-
-        int constrainIndex = 0;
-        for (int i = 0; i < this.rigidBodies.Count; ++i)
-        {
-            var constrains = this.rigidBodies[i].staticConstrains;
-            //int rigidBodyIndex = this.rigidBodies[i].dataIndex;
-            if (constrains != null && constrains.Length > 0)
-            {
-                for (int c = 0; c < constrains.Length; ++c)
-                {
-                    constrains[c].AddConstrain(ref constrainIndex, ref this.jacobi, ref bias);
-                }
-            }
-            var collisions = this.rigidBodies[i].collisionConstrains;
-            if (collisions != null && collisions.Count > 0)
-            {
-                for (int c = 0; c < collisions.Count; ++c)
-                {
-                    collisions[c].AddConstrain(ref constrainIndex, ref this.jacobi, ref bias);
-                }
-            }
-        }
+        //if(this.constrainCount > 0)
+        //    Debug.Log($"tangent collision count {this.constrainCount}");
     }
 
     private void SolveConstrain()
@@ -399,8 +362,7 @@ public class SimplePhysicSolver : MonoBehaviour
 
                 if (!this.rigidBodies[i].ground)
                 {
-                    //Debug.Log($"unsolvedV {oriL} {this.rigidBodies[i].unsolvedLinearV}  angulr {oriA} {this.rigidBodies[i].unsolvedAngularV} solvedJV {solvedJV}");
-                    //this.rigidBodies[i].DumpSolvedBias();
+                    //Debug.Log($"name{this.rigidBodies[i].name} unsolvedV {oriL} {this.rigidBodies[i].unsolvedLinearV}  angulr {oriA} {this.rigidBodies[i].unsolvedAngularV} solvedJV {solvedJV}");
                 }
 
                 this.rigidBodies[i].ApplyUnsolvedVelocity();
@@ -490,15 +452,15 @@ public class SimplePhysicSolver : MonoBehaviour
         {
             lambdaResBuffer = new float[length];
         }
-        if (lambdaMtxBuffer.Length != length * length)
+        if (lambdaMtxBuffer.Length != length)
         {
-            lambdaMtxBuffer = new float[length, length];
+            lambdaMtxBuffer = new float[length];
         }
         if (lambdaMtxInverseBuffer.Length != length * length)
         {
             lambdaMtxInverseBuffer = new float[length, length];
         }
-        if (bias.Length != this.constrainCount)
+        //if (bias.Length != this.constrainCount)
         {
             bias = new float[this.constrainCount];
         }
@@ -518,7 +480,7 @@ public class SimplePhysicSolver : MonoBehaviour
         {
             jacobipowers = new float[this.constrainCount, this.rigidBodies.Count * 6];
         }
-        if (jacobi.Length != this.constrainCount * this.rigidBodies.Count * 6)
+        //if (jacobi.Length != this.constrainCount * this.rigidBodies.Count * 6)
         {
             jacobi = new float[this.constrainCount, this.rigidBodies.Count * 6];
         }
@@ -557,17 +519,36 @@ public class SimplePhysicSolver : MonoBehaviour
                 }
             }
         }
+
+        if (constrainCount > 3)
+        {
+            //Debug.Log("multi collision");
+            int ddsd = 0;
+        }
+
         // For {J * (_M)} *{Jt}
         for (int i = 0; i < constrainCount; ++i)
         {
-            for (int j = 0; j < constrainCount; ++j)
+            lambdaMtxBuffer[i] = 0;
+            for (int k = 0; k < itemlength; ++k)
             {
-                lambdaMtxBuffer[i, j] = 0;
-                for (int k = 0; k < itemlength; ++k)
-                {
-                    lambdaMtxBuffer[i, j] += JinverMBuffer[i, k] * jacobi[j, k];
-                }
+                lambdaMtxBuffer[i] += JinverMBuffer[i, k] * jacobi[i, k];
             }
+
+
+            //for (int j = 0; j < constrainCount; ++j)
+            //{
+            //    lambdaMtxBuffer[i] = 0;
+            //    // update: take constrain as individual, constrain1 will not influence any rigid in constrain2.
+            //    if (i == j)
+            //    {
+            //        for (int k = 0; k < itemlength; ++k)
+            //        {
+            //            lambdaMtxBuffer[i] += JinverMBuffer[i, k] * jacobi[j, k];
+            //        }
+            //    }
+
+            //}
         }
 
         if(constrainCount > 0 )
@@ -620,14 +601,15 @@ public class SimplePhysicSolver : MonoBehaviour
             lambdaResBuffer[i] *= -1;
         }
 
-        CalculateInverseJMJ(ref this.lambdaMtxBuffer, ref this.lambdaMtxInverseBuffer);
+        //CalculateInverseJMJ(ref this.lambdaMtxBuffer, ref this.lambdaMtxInverseBuffer);
 
         for (int i = 0; i < constrainCount; ++i)
         {
             float tempLambda = 0;
             for (int j = 0; j < constrainCount; ++j)
             {
-                tempLambda += lambdaMtxInverseBuffer[i, j] * (lambdaResBuffer[j]);
+                var reverse = (i == j && lambdaMtxBuffer[i] > 1e-5) ? 1.0f / lambdaMtxBuffer[i] : 0;
+                tempLambda += reverse * (lambdaResBuffer[j]);
             }
             if(!solveContactConstrain)
             {
@@ -635,7 +617,7 @@ public class SimplePhysicSolver : MonoBehaviour
             }
             else
             {
-                if (bias[i] != 0)
+                if (contactNormal)
                 {
                     float oriLamda = lambdaSumN;
                     lambdaSumN += tempLambda;
@@ -654,10 +636,6 @@ public class SimplePhysicSolver : MonoBehaviour
                 }
             }
 
-            //Debug.Log($"lambda{i}={lambda[i]} temp{tempLambda} {Time.frameCount}");
-        }
-        if (constrainCount > 0)
-        {
         }
     }
 
@@ -672,11 +650,6 @@ public class SimplePhysicSolver : MonoBehaviour
             }
         }
 
-    }
-
-    private float GetJacobi(int i, int j)
-    {
-        return jacobiCoefficients[i, j] * Mathf.Pow(this.rigidBodies[i / 6].GetP(i), jacobipowers[i, j]) + jacobibiases[i, j];
     }
 
     private static void CalculateInverseJMJ(ref float[,] input, ref float[,] res)
@@ -712,7 +685,7 @@ public class SimplePhysicSolver : MonoBehaviour
                 float bs = C[k, k];
                 if (bs == 0)
                 {
-                    Console.WriteLine("求逆错误！结果可能不正确！");
+                    Debug.Log("求逆错误！结果可能不正确！");
                     break;
                     //return null;
                 }
