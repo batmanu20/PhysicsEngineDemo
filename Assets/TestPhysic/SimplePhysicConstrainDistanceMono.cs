@@ -2,13 +2,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class SimplePhysicConstrainDistanceMono : MonoBehaviour
+{
+    public Transform pinPoint;
+
+    public SimplePhysicConstrainDistance distance = new SimplePhysicConstrainDistance();
+    private void OnEnable()
+    {
+        distance.pinPoint= this.pinPoint;
+        distance.Setup(transform);
+        var rigid = this.GetComponent<SimplePhysicRigidBody>();
+        if (rigid != null)
+        {
+            distance.rigidbodies.Add(rigid);
+            rigid.staticConstrains.Add(distance);
+        }
+    }
+}
+
 public class SimplePhysicConstrainDistance : SimplePhysicConstrain
 {
     public Transform pinPoint;
 
     private Vector3 worldPosition;
 
-    SimplePhysicConstrainDistance()
+    public SimplePhysicConstrainDistance()
     {
         this.paramSetCount = 1;
     }
