@@ -9,7 +9,6 @@ public class SimplePhysicSolver : MonoBehaviour
     public static float _Cr = 1f;
     public static float _SlopP = 0.5f;
     public static float _SlopR = 50f;
-    public static bool stable = true;
     public static float _Cf = 0.5f;
     public static float _CfPower = 0.5f;
     public static float _Epsilon = 1e-2f;
@@ -108,13 +107,11 @@ public class SimplePhysicSolver : MonoBehaviour
         this.ApplyForce();
 
         // Some global state
-        stable = false;
         lambdaSumN = 0;
 
         int count = 0;
-        while (!stable && count < maxSteps)
+        while (count < maxSteps)
         {
-            stable = true;
             this.DetectCollision();
             solveContactConstrain = true;
             contactNormal = true;
@@ -368,60 +365,6 @@ public class SimplePhysicSolver : MonoBehaviour
                 this.rigidBodies[i].ApplyUnsolvedVelocity();
             }
         }
-        //else
-        //{
-        //    for (int i = 0; i < this.rigidBodies.Count; ++i)
-        //    {
-        //        this.rigidBodies[i].unsolvedLinearV = this.rigidBodies[i].ground ? Vector3.zero :
-        //            this.rigidBodies[i].unsolvedLinearV;
-        //        this.rigidBodies[i].unsolvedAngularV = this.rigidBodies[i].ground ? Vector3.zero :
-        //            this.rigidBodies[i].unsolvedAngularV;
-        //    }
-        //    solvedForce = extendForceBuffer;
-        //}
-
-        // calculate deltV of jv+d;
-        //for (int i = 0; i < this.rigidBodies.Count; ++i)
-        //{
-        //    for (int j = 0; j < 3; ++j)
-        //    {
-        //        vb1[j] = 0;
-        //        for (int c = 0; c < this.constrainCount; ++c)
-        //        {
-        //            vb1[j] += jacobi[c, 6 * i] * lambda[c];
-        //        }
-        //    }
-
-        //    Vector3 deltV = vb1 / rigidBodies[i].mass;
-        //    rigidBodies[i].linearVelocity += this.rigidBodies[i].ground ? Vector3.zero : deltV;
-        //    // calculate deltV;
-        //    for (int j = 0; j < 3; ++j)
-        //    {
-        //        vb1[j] = 0;
-        //        for (int c = 0; c < this.constrainCount; ++c)
-        //        {
-        //            vb2.Set(jacobi[c, 6 * i + 3], jacobi[c, 6 * i + 4], jacobi[c, 6 * i + 5]);
-        //            vb1[j] += Vector3.Dot(this.rigidBodies[i].inertia.inverse.GetRow(j), vb2) * lambda[c];
-        //        }
-        //    }
-        //    rigidBodies[i].angularVelocity += this.rigidBodies[i].ground ? Vector3.zero : vb1;
-        //}
-        //return; 
-
-        Vector3 force = Vector3.one;
-        Vector3 torque = Vector3.one;
-        // Calculate new Speed
-        //for (int i = 0; i < this.rigidBodies.Count; ++i)
-        //{
-        //    force.Set(solvedForce[6 * i + 0], solvedForce[6 * i + 1], solvedForce[6 * i + 2]);
-        //    var linearAcceleray = (force / this.rigidBodies[i].mass) * Time.fixedDeltaTime;
-        //    //Debug.Log("Linear Acceleray = " + linearAcceleray * 100);
-        //    this.rigidBodies[i].linearVelocity += (this.rigidBodies[i].ground ? Vector3.zero : (force / this.rigidBodies[i].mass)) * Time.fixedDeltaTime;
-        //    //Debug.Log("force" + solvedForce[0] + " " + solvedForce[1] + " " + solvedForce[2] + "  linear Velocity" + this.rigidBodies[i].linearVelocity);
-
-        //    torque.Set(solvedForce[6 * i + 3], solvedForce[6 * i + 4], solvedForce[6 * i + 5]);
-        //    this.rigidBodies[i].angularVelocity += this.rigidBodies[i].ground ? Vector3.zero : Matrix4x4.Inverse(this.rigidBodies[i].inertia).MultiplyPoint3x4(torque) * Time.fixedDeltaTime;
-        //}
     }
 
     private void InitiateArries()
@@ -460,10 +403,6 @@ public class SimplePhysicSolver : MonoBehaviour
         {
             lambdaMtxInverseBuffer = new float[length, length];
         }
-        //if (bias.Length != this.constrainCount)
-        {
-            bias = new float[this.constrainCount];
-        }
         if (JinverMBuffer.Length != this.constrainCount)
         {
             JinverMBuffer = new float[this.constrainCount, this.rigidBodies.Count * 6];
@@ -480,10 +419,10 @@ public class SimplePhysicSolver : MonoBehaviour
         {
             jacobipowers = new float[this.constrainCount, this.rigidBodies.Count * 6];
         }
-        //if (jacobi.Length != this.constrainCount * this.rigidBodies.Count * 6)
-        {
-            jacobi = new float[this.constrainCount, this.rigidBodies.Count * 6];
-        }
+
+        // clear every step
+        bias = new float[this.constrainCount];
+        jacobi = new float[this.constrainCount, this.rigidBodies.Count * 6];
     }
 
     private void UpdateRigidBody()
@@ -534,47 +473,25 @@ public class SimplePhysicSolver : MonoBehaviour
             {
                 lambdaMtxBuffer[i] += JinverMBuffer[i, k] * jacobi[i, k];
             }
-
-
-            //for (int j = 0; j < constrainCount; ++j)
-            //{
-            //    lambdaMtxBuffer[i] = 0;
-            //    // update: take constrain as individual, constrain1 will not influence any rigid in constrain2.
-            //    if (i == j)
-            //    {
-            //        for (int k = 0; k < itemlength; ++k)
-            //        {
-            //            lambdaMtxBuffer[i] += JinverMBuffer[i, k] * jacobi[j, k];
-            //        }
-            //    }
-
-            //}
         }
 
         if(constrainCount > 0 )
         {
             //Debug.Log($"lambdaMtxBuffer {lambdaMtxBuffer[0, 0]}");
         }
-        // Calculate lambdaResBuffer = -1 * J (Q1 / deltTime + (_M)* (Fext))
-        // lambdaResHalfBuffer = Q1 / deltTime + (_M)* (Fext)
-        // mXn Matrix: m = constrainCount; n = 6 * rigidCount
 
-        // Try Calculate lambdaResBuffer = -1 * J (Q1 + deltTime * (_M)* (Fext))
-        // Try lambdaResHalfBuffer = Q1 + deltTime * (_M)* (Fext)
+        // Calculate lambdaResBuffer = -1 * J (Q1 + deltTime * (_M)* (Fext))
+        // lambdaResHalfBuffer = Q1 + deltTime * (_M)* (Fext)
         for (int i = 0; i < this.rigidBodies.Count; ++i)
         {
             for (int k = 0; k < 3; ++k)
             {
-                //lambdaResHalfBuffer[6 * i + k] = this.rigidBodies[i].linearVelocity[k] / Time.fixedDeltaTime;
-                //lambdaResHalfBuffer[6 * i + k] += extendForceBuffer[6 * i + k] / this.rigidBodies[i].mass;
                 lambdaResHalfBuffer[6 * i + k] = this.rigidBodies[i].unsolvedLinearV[k];
             }
             vb1.Set(extendForceBuffer[6 * i + 3], extendForceBuffer[6 * i + 4], extendForceBuffer[6 * i + 5]);
             vb3 = this.rigidBodies[i].inertia.inverse.MultiplyPoint3x4(vb1);
             for (int k = 0; k < 3; ++k)
             {
-                //lambdaResHalfBuffer[6 * i + 3 + k] = this.rigidBodies[i].angularVelocity[k] / Time.fixedDeltaTime;
-                //lambdaResHalfBuffer[6 * i + 3 + k] += vb3[k];
                 lambdaResHalfBuffer[6 * i + 3 + k] = this.rigidBodies[i].unsolvedAngularV[k];
             }
         }
@@ -650,75 +567,5 @@ public class SimplePhysicSolver : MonoBehaviour
             }
         }
 
-    }
-
-    private static void CalculateInverseJMJ(ref float[,] input, ref float[,] res)
-    {
-        int n;
-        n = input.GetLength(0);
-        float[,] C = new float[n, 2 * n];
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                C[i, j] = input[i, j];
-        for (int i = 0; i < n; i++)
-            C[i, i + n] = 1;
-        for (int k = 0; k < n; k++)
-        {
-            float max = Math.Abs(C[k, k]);
-            int ii = k;
-            for (int m = k + 1; m < n; m++)
-                if (max < Math.Abs(C[m, k]))
-                {
-                    max = Math.Abs(C[m, k]);
-                    ii = m;
-                }
-            for (int m = k; m < 2 * n; m++)
-            {
-                if (ii == k) break;
-                float c;
-                c = C[k, m];
-                C[k, m] = C[ii, m];
-                C[ii, m] = c;
-            }
-            if (C[k, k] != 1)
-            {
-                float bs = C[k, k];
-                if (bs == 0)
-                {
-                    Debug.Log("求逆错误！结果可能不正确！");
-                    break;
-                    //return null;
-                }
-                C[k, k] = 1;
-                for (int p = k + 1; p < n * 2; p++)
-                {
-                    C[k, p] /= bs;
-                }
-            }
-
-            for (int q = k + 1; q < n; q++)
-            {
-                float bs = C[q, k];
-                for (int p = k; p < n * 2; p++)
-                {
-                    C[q, p] -= bs * C[k, p];
-                }
-            }
-        }
-        for (int q = n - 1; q > 0; q--)
-        {
-            for (int k = q - 1; k > -1; k--)
-            {
-                float bs = C[k, q];
-                for (int m = k + 1; m < 2 * n; m++)
-                {
-                    C[k, m] -= bs * C[q, m];
-                }
-            }
-        }
-
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                res[i, j] = C[i, j + n];
     }
 }

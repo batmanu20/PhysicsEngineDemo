@@ -53,8 +53,6 @@ public class SimplePhysicRigidBody : MonoBehaviour
     public bool[] freeFlag = new bool[6] { false, false, false, false, false, false };
     public Vector3 linearVelocity;
     public Vector3 angularVelocity;
-    //public Vector3 linearAccelaration;
-    //public Vector3 angularAccelaration;
     public float mass;
     public Matrix4x4 inertia;
 
@@ -104,14 +102,6 @@ public class SimplePhysicRigidBody : MonoBehaviour
             rigidIndex = solver.RigistRigidbody(this);
         }
 
-        //staticConstrains = this.GetComponents<SimplePhysicConstrain>();
-        //if(staticConstrains != null)
-        //{
-        //    for(int i = 0; i < staticConstrains.Length; ++i)
-        //    {
-        //        staticConstrains[i].rigidbodies.Add(this);
-        //    }
-        //}
         this.CalculateParams();
         if(this.ground)
         {
@@ -167,22 +157,16 @@ public class SimplePhysicRigidBody : MonoBehaviour
     protected Vector3 WorldTDiroLocal(Vector3 dir)
     {
         return this.unsolvedRotation.inverse.MultiplyPoint3x4(dir);
-        //return this.transform.worldToLocalMatrix.MultiplyPoint(dir + this.transform.position);
     }
 
     protected Vector3 LocalDirToWorld(Vector3 dir)
     {
         return this.unsolvedRotation.MultiplyPoint3x4(dir) + this.unsolvedPosition;
-        return this.transform.localToWorldMatrix.MultiplyPoint(dir);
     }
 
     public void DetectCollision()
     {
         this.collisionGizmosPos.Clear();
-        //foreach(var c in this.collisionConstrains)
-        //{
-        //    GameObject.Destroy(c);
-        //}
         this.collisionConstrains.Clear();
         for (int i = 0; i < farCollisionTarget.Count; ++i)
         {
@@ -210,10 +194,7 @@ public class SimplePhysicRigidBody : MonoBehaviour
             float b1 = -1 * SimplePhysicSolver._Beta
                 * Mathf.Max(result.insertion - SimplePhysicSolver._SlopP, 0) / Time.fixedDeltaTime;
             float b2 = SimplePhysicSolver._Cr * Math.Sign(vc) * Mathf.Max(Math.Abs(vc) - SimplePhysicSolver._SlopR, 0);
-            //b2 = -SimplePhysicSolver._Cr * vc;
-            //b2 = Mathf.Max(b2, 0);
             float b = b1 + b2;
-            //b = Math.Min(0, b);
             Vector3 raXn = Vector3.Cross(result.contactDirA, result.normalDirection);
             Vector3 rbXn = Vector3.Cross(result.contactDirB, result.normalDirection);
             //Debug.Log("b1 = " + b1 + " b2 = " + b2 + " vc =" + vc + " -va = " + (-this.linearVelocity) + " dot " + Vector3.Dot(-this.linearVelocity, result.normalDirection)
@@ -224,8 +205,7 @@ public class SimplePhysicRigidBody : MonoBehaviour
                 var v1 = -Vector3.Cross(this.unsolvedAngularV, result.contactDirA);
                 int a = 0;
             }
-            //float jScaleA = this.ground ? 1 : 1;
-            //float jScaleB = target.ground ? 1 : 1;
+
             float[] p = new float[12]
             {
                 -result.normalDirection.x,
@@ -278,10 +258,6 @@ public class SimplePhysicRigidBody : MonoBehaviour
                 + Vector3.Cross(target.unsolvedAngularV, vecT)
             , vecT);
             b2 = -(1 - SimplePhysicSolver._Cf) * Math.Sign(vc) * Mathf.Max(Math.Abs(vc) - SimplePhysicSolver._SlopR, 0);
-            for (int i = 0; i < p.Length; ++i)
-            {
-                //p[i] *= (float)Math.Pow(SimplePhysicSolver._Cf, SimplePhysicSolver._CfPower);
-            }
 
             collisionConstrain = new SimplePhysicConstrainCollision();
             //collisionConstrain = this.gameObject.AddComponent<SimplePhysicConstrainCollision>();
@@ -313,17 +289,12 @@ public class SimplePhysicRigidBody : MonoBehaviour
                 + Vector3.Cross(target.unsolvedAngularV, vecB)
             , vecB);
             b2 = -(1 - SimplePhysicSolver._Cf) * Math.Sign(vc) * Mathf.Max(Math.Abs(vc) - SimplePhysicSolver._SlopR, 0);
-            for (int i = 0; i < p.Length; ++i)
-            {
-                //p[i] *= (float)Math.Pow(SimplePhysicSolver._Cf, SimplePhysicSolver._CfPower);
-            }
 
             collisionConstrain = new SimplePhysicConstrainCollision();
             //collisionConstrain = this.gameObject.AddComponent<SimplePhysicConstrainCollision>();
             collisionConstrain.SetParameter(p, b2, this.rigidIndex, target.rigidIndex, false);
             this.collisionConstrains.Add(collisionConstrain);
             //this.collisionConstrains.Add(new SimplePhysicConstrainCollision(p, 0, this.rigidIndex, target.rigidIndex, false));
-            SimplePhysicSolver.stable = result.insertion < 2 * SimplePhysicSolver._SlopP ? true : false;
         }
     }
 
