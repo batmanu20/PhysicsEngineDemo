@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class SimplePhysicConstrainCollision : SimplePhysicConstrain
 {
-    private float[] p;
-    private float b;
+    private int contactFrames = 0;
+    private float[,] p = new float[3,12];
+    private float[] b = new float[3];
     private int idA;
     private int idB;
 
@@ -14,28 +15,40 @@ public class SimplePhysicConstrainCollision : SimplePhysicConstrain
         //throw new System.NotImplementedException();
     }
 
-    public void SetParameter(float[] _p, float _b,int _idA, int _idB, bool normal)
+    public void SetParameter(float[] _p, float _b,int _idA, int _idB, int paramSet)
     {
-        p = _p;
-        b = _b;
+        for(int i = 0;i < _p.Length; ++i)
+        {
+            p[paramSet, i] = _p[i];
+        }
+        b[paramSet] = _b;
         idA = _idA;
         idB = _idB;
-        this.type = normal ? ConstrainType.ContactNormal : ConstrainType.ContactTangent;
+        contactFrames++;
     }
 
     public override void AddConstrain(ref int constrainCount, ref float[,] jacobi, ref float[] bias)
     {
-        int start = idA * 6;
-        for(int i = 0; i < 6; ++i)
+
+    }
+
+
+    public void AddConstrainCollision(ref int constrainCount, ref float[,] jacobi, ref float[] bias, int set)
+    {
+        //for (int set = 0; set < 3; ++set)
         {
-            jacobi[constrainCount, start + i] = p[i];
+            int start = idA * 6;
+            for (int i = 0; i < 6; ++i)
+            {
+                jacobi[constrainCount, start + i] = p[set, i];
+            }
+            start = idB * 6;
+            for (int i = 0; i < 6; ++i)
+            {
+                jacobi[constrainCount, start + i] = p[set, i + 6];
+            }
+            bias[constrainCount] = b[set];
+            constrainCount++;
         }
-        start = idB * 6;
-        for (int i = 0; i < 6; ++i)
-        {
-            jacobi[constrainCount, start + i] = p[i + 6];
-        }
-        bias[constrainCount] = b;
-        constrainCount += 1;
     }
 }

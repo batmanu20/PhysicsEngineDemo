@@ -138,7 +138,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &29540202
 Transform:
   m_ObjectHideFlags: 0
@@ -291,7 +291,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -441,7 +441,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -698,7 +698,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -848,7 +848,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -998,7 +998,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -1148,7 +1148,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -1332,7 +1332,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -1412,14 +1412,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 675616198}
-  m_LocalRotation: {x: 0.29763138, y: 0.46679166, z: -0.2834636, w: 0.78305143}
-  m_LocalPosition: {x: 3.19, y: 1.73, z: -1.61}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.88, z: 0}
   m_LocalScale: {x: 3.02, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1551959547}
   m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 46.95, y: 55.46, z: -14.08}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &675616200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1482,7 +1482,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -1632,7 +1632,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -1712,14 +1712,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 701522351}
-  m_LocalRotation: {x: 0.10912715, y: 0, z: 0, w: 0.99402785}
-  m_LocalPosition: {x: 0, y: -0.39, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.48, z: 0}
   m_LocalScale: {x: 10, y: 0.6, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1551959547}
   m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 12.53, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &701522353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1782,7 +1782,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -2080,7 +2080,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -2124,14 +2124,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1243960117}
-  m_LocalRotation: {x: 0.78192437, y: -0.28272963, z: 0.048968583, w: 0.5534079}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 7.69, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 530023172}
   m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 116.73, y: 31.7, z: 59.6}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1243960120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2194,7 +2194,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -2357,7 +2357,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -2507,7 +2507,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -2657,7 +2657,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -2807,7 +2807,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -2914,7 +2914,7 @@ MonoBehaviour:
   collider: 1
   applyCollision: 1
   freeFlag: 000000000000
-  linearVelocity: {x: 3, y: 0, z: 0}
+  linearVelocity: {x: 0, y: 0, z: 0}
   angularVelocity: {x: 0, y: 0, z: 0}
   mass: 0
   inertia:
@@ -2935,7 +2935,7 @@ MonoBehaviour:
     e32: 0
     e33: 0
   cacheDeltRotation: {x: 0, y: 0, z: 0}
-  unsolvedLinearV: {x: 3, y: 0, z: 0}
+  unsolvedLinearV: {x: 0, y: 0, z: 0}
   unsolvedAngularV: {x: 0, y: 0, z: 0}
   unsolvedPosition: {x: 0, y: 0, z: 0}
   unsolvedRotation:
@@ -2957,7 +2957,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -3044,7 +3044,6 @@ MonoBehaviour:
   beta: 0.1
   cr: 0.5
   cf: 0.6
-  cfPower: 1
   slopP: 0.001
   slopR: 0.001
   epsilon: 0.00001
@@ -3248,7 +3247,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -3283,9 +3282,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gravity: -9.8
   beta: 0.1
-  cr: 0.5
-  cf: 0.47
-  cfPower: 1
+  cr: 0.27
+  cf: 1
   slopP: 0.001
   slopR: 0.001
   epsilon: 0.00001
@@ -3405,7 +3403,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -3556,7 +3554,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -3720,7 +3718,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -3870,7 +3868,7 @@ MonoBehaviour:
     e33: 0
   farCollisionTarget: 
   debugImpulse: 0
-  DebugSimpleEnabled: 0
+  DebugSimplexEnabled: 0
   debugSupport: 0
   supportTarget: {fileID: 0}
   debugSupportCount: 20
@@ -3939,7 +3937,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2086233247
 Transform:
   m_ObjectHideFlags: 0

@@ -4,16 +4,9 @@ using UnityEngine;
 
 public abstract class SimplePhysicConstrain
 {
-    public enum ConstrainType
-    {
-        NonContact,
-        ContactNormal,
-        ContactTangent,
-    }
     public int paramSetCount = 0;
     public float warmUpLambda = 0;
     public List<SimplePhysicRigidBody> rigidbodies = new List<SimplePhysicRigidBody>();
-    public ConstrainType type = ConstrainType.NonContact;
 
     public abstract void Setup(Transform transform);
 
