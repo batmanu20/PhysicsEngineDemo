@@ -24,7 +24,7 @@ public static class SimplePhysicRigidBodyMethod
         result.normalDirection = Vector3.Normalize(-rigidB.transform.up);
         result.contactDirB = Vector3.Normalize(rigidB.transform.up) * 0.001f;
         var sizeBox = rigidA.transform.localScale;
-        var distance = Vector3.Dot(rigidB.unsolvedPosition - rigidA.unsolvedPosition, result.normalDirection);
+        var distance = Vector3.Dot(rigidB.transform.position - rigidA.transform.position, result.normalDirection);
         result.insertion = 0;
         if (Math.Abs(Vector3.Dot(rigidA.transform.up, rigidB.transform.up)) == 1 && sizeBox.y / 2 > distance)
         {

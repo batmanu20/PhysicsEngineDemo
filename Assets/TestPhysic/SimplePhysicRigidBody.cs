@@ -7,15 +7,6 @@ using Mathf = UnityEngine.Mathf;
 
 public class SimplePhysicRigidBody : MonoBehaviour
 {
-    public List<TestForceInput> testForce;
-    private List<Vector3> collisionGizmosSimplex = new List<Vector3>();
-    private List<Vector3> collisionGizmosContact = new List<Vector3>();
-    private Vector3 collisionGizmosNearest;
-    private Vector3 debugAngular = new Vector3();
-    private Vector3 historyPos;
-    private float historyRot;
-    private int historyCount = 0;
-
     [Serializable]
     public struct TestForceInput
     {
@@ -42,38 +33,6 @@ public class SimplePhysicRigidBody : MonoBehaviour
         public float insertion;
     }
 
-    private SimplePhysicSolver solver;
-    public int rigidIndex = -1;
-    public RigidbodyType type;
-    public bool ground = false;
-    public bool collider = true;
-    public bool applyCollision = true;
-
-    public bool[] freeFlag = new bool[6] { false, false, false, false, false, false };
-    public Vector3 linearVelocity;
-    public Vector3 angularVelocity;
-    public float mass;
-    public Matrix4x4 inertia;
-
-    public Vector3 cacheDeltRotation;
-    public Vector3 unsolvedLinearV;
-    public Vector3 unsolvedAngularV;
-    public Vector3 unsolvedPosition;
-    public Matrix4x4 unsolvedRotation;
-    public List<int> farCollisionTarget = new List<int>();
-
-    public List<SimplePhysicConstrain> staticConstrains = new List<SimplePhysicConstrain>();
-    //public List<SimplePhysicConstrainCollision> collisionConstrains = new List<SimplePhysicConstrainCollision>();
-    public Dictionary<int, SimplePhysicConstrainCollision> collisionConstrains = new Dictionary<int, SimplePhysicConstrainCollision>();
-    private CollisionResult resultCache;
-    private Simplex debugSimplex;
-    [HideInInspector]
-    public bool debugImpulse = false;
-    public bool DebugSimplexEnabled;
-    public bool debugSupport = false;
-    public SimplePhysicRigidBody supportTarget;
-    public int debugSupportCount = 20;
-
     public struct Force
     {
         public Vector3 position;
@@ -84,8 +43,45 @@ public class SimplePhysicRigidBody : MonoBehaviour
             force = f;
         }
     }
+    public List<TestForceInput> testForce;
+    public List<Force> posAndForces = new List<Force>();
+    public int rigidIndex = -1;
+    public RigidbodyType type;
+    public bool ground = false;
+    public bool collider = true;
+    public bool applyCollision = true;
 
-    public List<Force> posAndForces = new List<Force>(); 
+    public bool[] freeFlag = new bool[6] { false, false, false, false, false, false };
+    public float mass;
+    public Matrix4x4 inertia;
+
+    public Vector3 cacheDeltRotation;
+    public List<int> farCollisionTarget = new List<int>();
+
+    public List<SimplePhysicConstrain> staticConstrains = new List<SimplePhysicConstrain>();
+    public Dictionary<int, SimplePhysicConstrainCollision> collisionConstrains = new Dictionary<int, SimplePhysicConstrainCollision>();
+    [HideInInspector]
+    public bool debugImpulse = false;
+    public bool DebugSimplexEnabled;
+    public bool debugSupport = false;
+    public SimplePhysicRigidBody supportTarget;
+    public int debugSupportCount = 20;
+    public Vector3 unsolvedAngularV;
+    public Vector3 unsolvedLinearV;
+    public Matrix4x4 unsolvedRotation;
+
+    private SimplePhysicSolver solver;
+    private List<Vector3> collisionGizmosSimplex = new List<Vector3>();
+    private List<Vector3> collisionGizmosContact = new List<Vector3>();
+    private Vector3 collisionGizmosNearest;
+    private Vector3 debugAngular = new Vector3();
+    private Vector3 historyPos;
+    private float historyRot;
+    private int historyCount = 0;
+    private Vector3 linearVelocity;
+    private Vector3 angularVelocity;
+    private CollisionResult resultCache;
+    private Simplex debugSimplex;
 
     private void OnEnable()
     {
@@ -109,7 +105,11 @@ public class SimplePhysicRigidBody : MonoBehaviour
             this.inertia = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one * int.MaxValue);
         }
         this.InitiateType();
+
+        this.linearVelocity = this.unsolvedLinearV;
+        this.angularVelocity = this.unsolvedAngularV;
     }
+
 
     public virtual void InitiateType()
     {
@@ -161,7 +161,7 @@ public class SimplePhysicRigidBody : MonoBehaviour
 
     protected Vector3 LocalDirToWorld(Vector3 dir)
     {
-        return this.unsolvedRotation.MultiplyPoint3x4(dir) + this.unsolvedPosition;
+        return this.unsolvedRotation.MultiplyPoint3x4(dir) + this.transform.position;
     }
 
     public void DetectCollision()
@@ -280,13 +280,18 @@ public class SimplePhysicRigidBody : MonoBehaviour
         constrain.SetParameter(p, b2, this.rigidIndex, target.rigidIndex, 2);
     }
 
-    public void ApplyUnsolvedVelocity()
+    public void ApplyUnsolvedForce(Vector3 force, Vector3 torque)
     {
-        var deltPositon = this.unsolvedLinearV * Time.fixedDeltaTime;
-        var deltRotation = this.unsolvedAngularV * Time.fixedDeltaTime;
-        this.unsolvedPosition = this.transform.position + deltPositon;
-        var rotated = Quaternion.AngleAxis(deltRotation.magnitude * Mathf.Rad2Deg, Vector3.Normalize(deltRotation)) * this.transform.rotation;
-        this.unsolvedRotation = Matrix4x4.TRS(Vector3.zero, rotated, Vector3.one);
+        this.unsolvedLinearV = this.ground ? Vector3.zero : this.linearVelocity + (force / this.mass * Time.fixedDeltaTime);
+        this.unsolvedAngularV = this.ground ? Vector3.zero : this.angularVelocity + Matrix4x4.Inverse(this.inertia).MultiplyPoint3x4(torque) * Time.fixedDeltaTime;
+        this.ApplyUnsolvedPosition();
+    }
+
+    public void ApplyUnsolvedVelocity(Vector3 linearImpulse, Vector3 angularImpulse)
+    {
+        this.unsolvedLinearV = this.ground ? Vector3.zero : this.unsolvedLinearV + (linearImpulse / this.mass);
+        this.unsolvedAngularV = this.ground ? Vector3.zero : this.unsolvedAngularV + Matrix4x4.Inverse(this.inertia).MultiplyPoint3x4(angularImpulse);
+        //this.ApplyUnsolvedPosition();
     }
 
     public void ApplySimulation()
@@ -328,12 +333,6 @@ public class SimplePhysicRigidBody : MonoBehaviour
             //this.collider = false;
             //this.applyCollision = false;
         }
-    }
-
-    public float GetP(int i)
-    {
-        var item = ((i % 6) < 3) ? this.transform.position : this.transform.rotation.eulerAngles;
-        return item[i % 3];
     }
 
     public void DetectCollision(SimplePhysicRigidBody rigid)
@@ -383,8 +382,8 @@ public class SimplePhysicRigidBody : MonoBehaviour
         {
             collision.collision = true;
             collision.normalDirection = simplex.normal.normalized;
-            collision.contactDirA = simplex.contactA - this.unsolvedPosition;
-            collision.contactDirB = simplex.contactB - rigid.unsolvedPosition;
+            collision.contactDirA = simplex.contactA - this.transform.position;
+            collision.contactDirB = simplex.contactB - rigid.transform.position;
             collision.insertion = simplex.insert;
             if (!this.collisionConstrains.TryGetValue(rigid.rigidIndex, out var constrain))
             {
@@ -419,6 +418,15 @@ public class SimplePhysicRigidBody : MonoBehaviour
         Debug.Log("finish Step");
         debugSimplex = null;
         yield return null;
+    }
+
+    private void ApplyUnsolvedPosition()
+    {
+        var deltPositon = this.unsolvedLinearV * Time.fixedDeltaTime;
+        var deltRotation = this.unsolvedAngularV * Time.fixedDeltaTime;
+        this.transform.position += deltPositon;
+        this.transform.rotation = Quaternion.AngleAxis(deltRotation.magnitude * Mathf.Rad2Deg, Vector3.Normalize(deltRotation)) * this.transform.rotation;
+        this.unsolvedRotation = Matrix4x4.TRS(Vector3.zero, this.transform.rotation, Vector3.one);
     }
 
     private void OnDrawGizmos()

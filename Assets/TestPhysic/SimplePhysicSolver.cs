@@ -165,18 +165,8 @@ public class SimplePhysicSolver : MonoBehaviour
         {
             force.Set(extendForceBuffer[6 * i + 0], extendForceBuffer[6 * i + 1], extendForceBuffer[6 * i + 2]);
             var linearAcceleray = (force / this.rigidBodies[i].mass) * Time.fixedDeltaTime;
-            //Debug.Log("Linear Acceleray = " + linearAcceleray * 100);
-            this.rigidBodies[i].unsolvedLinearV = this.rigidBodies[i].ground ? Vector3.zero : 
-                (this.rigidBodies[i].linearVelocity + (force / this.rigidBodies[i].mass) * Time.fixedDeltaTime);
-            //Debug.Log("force" + solvedForce[0] + " " + solvedForce[1] + " " + solvedForce[2] + "  linear Velocity" + this.rigidBodies[i].linearVelocity);
-
             torque.Set(extendForceBuffer[6 * i + 3], extendForceBuffer[6 * i + 4], extendForceBuffer[6 * i + 5]);
-            var deltAngularV = Matrix4x4.Inverse(this.rigidBodies[i].inertia).MultiplyPoint3x4(torque) * Time.fixedDeltaTime;
-            this.rigidBodies[i].unsolvedAngularV =this.rigidBodies[i].ground ?
-                Vector3.zero :
-                (this.rigidBodies[i].angularVelocity + deltAngularV);
-
-            this.rigidBodies[i].ApplyUnsolvedVelocity();
+            this.rigidBodies[i].ApplyUnsolvedForce(force, torque);
         }
     }
 
@@ -313,27 +303,10 @@ public class SimplePhysicSolver : MonoBehaviour
 
             for (int i = 0; i < this.rigidBodies.Count; ++i)
             {
-                var oriL = this.rigidBodies[i].unsolvedLinearV;
-                var oriA = this.rigidBodies[i].unsolvedAngularV;
                 vb1.Set(jtLambda[6 * i + 0], jtLambda[6 * i + 1], jtLambda[6 * i + 2]);
-                this.rigidBodies[i].unsolvedLinearV = (this.rigidBodies[i].ground ? Vector3.zero :
-                    this.rigidBodies[i].unsolvedLinearV + (vb1 / this.rigidBodies[i].mass));
-                vb1.Set(jtLambda[6 * i + 3], jtLambda[6 * i + 4], jtLambda[6 * i + 5]);
-                this.rigidBodies[i].unsolvedAngularV = this.rigidBodies[i].ground ? Vector3.zero :
-                    this.rigidBodies[i].unsolvedAngularV + Matrix4x4.Inverse(this.rigidBodies[i].inertia).MultiplyPoint3x4(vb1);
+                vb2.Set(jtLambda[6 * i + 3], jtLambda[6 * i + 4], jtLambda[6 * i + 5]);
 
-                float solvedJV = 0;
-                vb1.Set(jacobi[0, 6 * i + 0], jacobi[0, 6 * i + 1], jacobi[0, 6 * i + 2]);
-                solvedJV += Vector3.Dot(vb1, this.rigidBodies[i].unsolvedLinearV);
-                vb2.Set(jacobi[0, 6 * i + 3], jacobi[0, 6 * i + 4], jacobi[0, 6 * i + 5]);
-                solvedJV += Vector3.Dot(vb2, this.rigidBodies[i].unsolvedAngularV);
-
-                if (!this.rigidBodies[i].ground)
-                {
-                    //Debug.Log($"name{this.rigidBodies[i].name} unsolvedV {oriL} {this.rigidBodies[i].unsolvedLinearV}  angulr {oriA} {this.rigidBodies[i].unsolvedAngularV} solvedJV {solvedJV}");
-                }
-
-                this.rigidBodies[i].ApplyUnsolvedVelocity();
+                this.rigidBodies[i].ApplyUnsolvedVelocity(vb1, vb2);
             }
         }
     }
