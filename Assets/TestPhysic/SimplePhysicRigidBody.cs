@@ -177,6 +177,8 @@ public class SimplePhysicRigidBody : MonoBehaviour
 
     public virtual void AppyCollision(CollisionResult result, SimplePhysicRigidBody target, SimplePhysicConstrainCollision constrain)
     {
+        constrain.AddConstrain(result);
+
         float vc = Vector3.Dot(
                 - this.unsolvedLinearV
                 - Vector3.Cross(this.unsolvedAngularV, result.contactDirA)
@@ -303,6 +305,8 @@ public class SimplePhysicRigidBody : MonoBehaviour
         this.transform.position += deltPositon;
         this.transform.rotation = Quaternion.AngleAxis(deltRotation.magnitude * Mathf.Rad2Deg, Vector3.Normalize(deltRotation)) * this.transform.rotation;
 
+        this.RecheckSolvedVelocity();
+
         if (deltRotation.magnitude > 0)
         {
             int aa = 0;
@@ -387,7 +391,7 @@ public class SimplePhysicRigidBody : MonoBehaviour
             collision.insertion = simplex.insert;
             if (!this.collisionConstrains.TryGetValue(rigid.rigidIndex, out var constrain))
             {
-                constrain = new SimplePhysicConstrainCollision();
+                constrain = new SimplePhysicConstrainCollision(collision);
                 this.collisionConstrains.Add(rigid.rigidIndex, constrain);
             }
             this.AppyCollision(collision, rigid, constrain);
@@ -418,6 +422,22 @@ public class SimplePhysicRigidBody : MonoBehaviour
         Debug.Log("finish Step");
         debugSimplex = null;
         yield return null;
+    }
+
+    private void RecheckSolvedVelocity()
+    {
+        foreach(var collision in collisionConstrains)
+        {
+            var result = collision.Value.collision;
+            var target = solver.GetRigidbody(collision.Value.idB);
+            float vc = Vector3.Dot(
+                    -this.unsolvedLinearV
+                    - Vector3.Cross(this.unsolvedAngularV, result.contactDirA)
+                    + target.unsolvedLinearV
+                    + Vector3.Cross(target.unsolvedAngularV, result.contactDirB)
+                , result.normalDirection);
+            //Debug.Log($"collision solved  vc = {vc}");
+        }
     }
 
     private void ApplyUnsolvedPosition()
